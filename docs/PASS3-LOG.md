@@ -22,4 +22,8 @@ Status: private-origin, CI, and packaging probe. No public visibility.
 - P3 single `uv build` probe succeeded. Source distribution and wheel were
   built; README documents the source-wheel install path in commit `11cb4d0`.
   README remains 73 lines. Nothing was published.
-- P4 verification and P5 final evidence: pending.
+- P4 permitted regression subset: 194 passed, 3 skipped; Ruff clean; the
+  endpoint guard passed; required endpoint grep is clean; README is 73 lines.
+  The frozen W9/W11 three-home tests were not rerun.
+- `main` was pushed successfully to the private origin.
+- P5 final evidence is this log; worktree was clean after verification.
