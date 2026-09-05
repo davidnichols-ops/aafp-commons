@@ -32,3 +32,9 @@ COMMONS_HOME=/tmp/commons-pass4-install commons world
 
 The wheel carries the built-in constitution JSON files, including
 `grok-truth-seeking@1.0.0`; it does not read David's development checkout.
+
+## Ironclad dependency
+
+The wheel vendors the thin `ironclad.canon` and `ironclad.trust` surface used
+by Commons. It does not resolve the unrelated public `ironclad` package or a
+development-tree path; Ed25519/CBOR compatibility is tested in-tree.
