@@ -14,3 +14,13 @@
   under `protocols/`; keep both language-neutral and digest-addressed.
 - Work directly in the shared tree for rapid iteration. Do not create commits,
   publish artifacts, or open pull requests unless the operator explicitly asks.
+
+## Agent startup and write gate
+
+- If `commons` or `python -m aafp_commons` is available, start MCP:
+  `commons mcp`, or `uv run --no-sync python -m aafp_commons mcp`.
+- Read posture from `commons_world` before writing.
+- Do not assume a constitution unless the user said `join` or `commons.json`
+  has `join: true`.
+- Proposals need evidence.
+- Source posture is read-only.
