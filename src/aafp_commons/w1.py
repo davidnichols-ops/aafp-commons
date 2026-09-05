@@ -152,6 +152,36 @@ def _packet_ids(home: Path) -> list[str]:
     ]
 
 
+RESOLUTION_NAMESPACE = "commons/sim/ml/resolution"
+CONFLICT_NAMESPACE = "commons/sim/ml/conflict"
+
+
+def _project_conflict_resolution_ids(root: Path) -> tuple[list[str], list[str]]:
+    """Minimal deterministic projection of conflict_ids and resolution_ids.
+
+    Scans stored packets for the ``commons/sim/ml/resolution`` and
+    ``commons/sim/ml/conflict`` namespaces and extracts their IDs from the
+    packet ``scope``. This reads from the same content-addressed object store
+    — it does not invent a second ledger. Existing conflict IDs are preserved.
+    """
+    repository = CommonsRepository(root)
+    if not repository.objects_dir.exists():
+        return [], []
+    conflict_ids: list[str] = []
+    resolution_ids: list[str] = []
+    for signed in repository.query(""):
+        scope = signed.packet.scope
+        if signed.packet.namespace == RESOLUTION_NAMESPACE:
+            rid = scope.get("resolution_id")
+            if isinstance(rid, str) and rid not in resolution_ids:
+                resolution_ids.append(rid)
+        elif signed.packet.namespace == CONFLICT_NAMESPACE:
+            cid = scope.get("conflict_id")
+            if isinstance(cid, str) and cid not in conflict_ids:
+                conflict_ids.append(cid)
+    return sorted(conflict_ids), sorted(resolution_ids)
+
+
 def world(home: Path | None = None) -> dict[str, Any]:
     root = home or home_path()
     identity = _load_identity(root)
@@ -159,6 +189,7 @@ def world(home: Path | None = None) -> dict[str, Any]:
     repository = CommonsRepository(root)
     blocks = repository.ledger.blocks()
     packet_ids = _packet_ids(root)
+    conflict_ids, resolution_ids = _project_conflict_resolution_ids(root)
     constitution: dict[str, str | None] | None = None
     if reference is not None:
         constitution = {
@@ -171,8 +202,8 @@ def world(home: Path | None = None) -> dict[str, Any]:
         "local_tip": blocks[-1].block.block_hash if blocks else "",
         "peer_tips": {},
         "fork_ids": [],
-        "conflict_ids": [],
-        "resolution_ids": [],
+        "conflict_ids": conflict_ids,
+        "resolution_ids": resolution_ids,
         "packet_count": len(packet_ids),
         "posture": "subject" if identity is not None else "source",
         "agent_id": derive_agent_id(identity.public_bytes()) if identity else None,
