@@ -258,6 +258,7 @@ def build_parser() -> argparse.ArgumentParser:
     commands.add_parser("world", help="print the local world")
     get = commands.add_parser("get", help="read one packet by content address")
     get.add_argument("packet_id")
+    commands.add_parser("mcp", help="run the zero-config stdio MCP server")
     return parser
 
 
@@ -284,6 +285,10 @@ def main(argv: list[str] | None = None) -> int:
             return _print_world(home)
         if args.command == "get":
             return _get(home, args.packet_id)
+        if args.command == "mcp":
+            from aafp_commons.mcp_stdio import serve_stdio
+
+            return serve_stdio(home=home)
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         print(json.dumps({"error": str(error)}))
         return 1
