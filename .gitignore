@@ -1,11 +1,38 @@
+# Python
 .venv/
 __pycache__/
+*.pyc
 .pytest_cache/
-commons-data/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Build artifacts
+dist/
+build/
+
+# Environment and secrets
+.env
+.env.*
 keys/
+*.pem
+*.key
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Local commons state
+commons-data/
+commons.json
 *.jsonl
 data/
 **/data/
+
+# Simulation and evidence (generated local state)
 v03-evidence/identity-*.json
 v03-evidence/*state*.tar.gz
 v03-evidence/objects-*.tar.gz
+v03-evidence/*.log
+simulation/
+**/simulation/
