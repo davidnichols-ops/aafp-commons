@@ -34,5 +34,14 @@ v03-evidence/identity-*.json
 v03-evidence/*state*.tar.gz
 v03-evidence/objects-*.tar.gz
 v03-evidence/*.log
+v03-evidence/tunnel-*.sh
 simulation/
 **/simulation/
+
+# SSH key material
+id_*
+
+# Local generated state (safe /tmp-related patterns)
+tmp/
+*.tmp
+.tmp/
