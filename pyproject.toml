@@ -9,7 +9,8 @@ description = "Signed, evidence-aware collective memory for software agents"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "ironclad>=1.0.0",
+    "cbor2>=5.0.0",
+    "cryptography>=42.0.0",
 ]
 
 [project.optional-dependencies]
@@ -22,10 +23,9 @@ commons = "aafp_commons.w1:main"
 
 [tool.uv.sources]
 aafp = { path = "../aafp/crates/aafp-py" }
-ironclad = { path = "../ironclad", editable = true }
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/aafp_commons"]
+packages = ["src/aafp_commons", "src/ironclad"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "protocols" = "aafp_commons/protocols"
@@ -41,14 +41,13 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+[tool.ruff.lint.isort]
+known-third-party = ["ironclad"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true
-packages = ["aafp_commons"]
-
-[[tool.mypy.overrides]]
-module = ["ironclad.*"]
-ignore_missing_imports = true
+packages = ["aafp_commons", "ironclad"]
 
 [dependency-groups]
 dev = [
