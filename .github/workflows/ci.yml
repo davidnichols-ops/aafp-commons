@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      COMMONS_HOME: ${{ runner.temp }}/commons-ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.11
+      - name: Sync development environment
+        run: uv sync --extra dev
+      - name: Test
+        run: |
+          set +e
+          uv run --no-sync pytest -q
+          status=$?
+          if [ $status -ne 0 ] && [ -d .venv ]; then
+            echo "uv run --no-sync failed; falling back to python -m pytest"
+            python -m pytest -q
+            status=$?
+          fi
+          exit $status
+      - name: Lint
+        run: uv run --no-sync ruff check src tests examples
+      - name: Endpoint guard
+        run: uv run --no-sync pytest tests/test_no_remote_endpoints.py -q
