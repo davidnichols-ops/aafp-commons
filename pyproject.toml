@@ -18,6 +18,7 @@ transport = ["aafp>=0.1.0"]
 
 [project.scripts]
 aafp-commons = "aafp_commons.cli:main"
+commons = "aafp_commons.w1:main"
 
 [tool.uv.sources]
 aafp = { path = "../aafp/crates/aafp-py" }
