@@ -39,3 +39,25 @@ jobs:
         run: uv run --no-sync ruff check src tests examples
       - name: Endpoint guard
         run: uv run --no-sync pytest tests/test_no_remote_endpoints.py -q
+
+  install-from-wheel:
+    name: install-from-wheel
+    runs-on: ubuntu-latest
+    env:
+      COMMONS_HOME: ${{ runner.temp }}/commons-ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.11
+      - name: Build wheel
+        run: uv build --wheel
+      - name: Install wheel in temporary environment
+        run: |
+          uv venv "$RUNNER_TEMP/commons-wheel"
+          uv pip install --python "$RUNNER_TEMP/commons-wheel/bin/python" dist/*.whl
+      - name: Run packaged world command
+        run: "$RUNNER_TEMP/commons-wheel/bin/python -m aafp_commons world"
