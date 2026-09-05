@@ -1,0 +1,13 @@
+{
+  "name": "@aafp/commons",
+  "version": "0.1.0",
+  "description": "Private npm shim that delegates to the installed aafp-commons Python wheel. No ledger logic; no runtime dependencies.",
+  "private": true,
+  "bin": {
+    "commons": "bin/commons.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}
