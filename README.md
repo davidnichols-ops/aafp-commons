@@ -49,3 +49,25 @@ uv run --no-project ruff check src tests
 
 The sibling local Ironclad checkout is used by `uv` in this development tree.
 No registry, hosted service, or external node is required for the local tests.
+
+## Packaging
+
+`uv build` produces a source distribution and a universal wheel from this tree:
+
+```bash
+uv build
+```
+
+Artifacts land in `dist/`:
+
+- `aafp_commons-0.1.0.tar.gz` — source distribution
+- `aafp_commons-0.1.0-py3-none-any.whl` — wheel (bundles `protocols/` and
+  `constitutions/` via `force-include`)
+
+Install the built wheel directly from source without any registry:
+
+```bash
+uv pip install dist/aafp_commons-0.1.0-py3-none-any.whl
+```
+
+No publish, registry upload, or external index is required.
