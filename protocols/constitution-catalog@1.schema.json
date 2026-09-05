@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-catalog@1",
+  "title": "AAFP Commons constitution package catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "packages", "count"],
+  "properties": {
+    "schema": {"const": "aafp.commons/constitution-catalog@1"},
+    "count": {"type": "integer", "minimum": 0},
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["package_id", "version", "digest", "display_name", "description", "tags", "has_guidance", "has_source", "provider_constraint_policy", "namespace_prefixes", "allowed_kinds", "compatible_runtimes", "incompatible_runtimes", "source"],
+        "properties": {
+          "package_id": {"type": "string"},
+          "version": {"type": "string"},
+          "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "display_name": {"type": "string"},
+          "description": {"type": "string"},
+          "tags": {"type": "array", "items": {"type": "string"}},
+          "has_guidance": {"type": "boolean"},
+          "has_source": {"type": "boolean"},
+          "provider_constraint_policy": {"const": "preserve"},
+          "namespace_prefixes": {"type": "array", "items": {"type": "string"}},
+          "allowed_kinds": {"type": "array", "items": {"type": "string"}},
+          "compatible_runtimes": {"type": "array", "items": {"type": "string"}},
+          "incompatible_runtimes": {"type": "array", "items": {"type": "string"}}
+          ,"source": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["title", "url", "license", "attribution"],
+            "properties": {
+              "title": {"type": "string"}, "url": {"type": "string"},
+              "license": {"type": "string"}, "attribution": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

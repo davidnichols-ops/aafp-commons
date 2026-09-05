@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/research-publication@1",
+  "title": "AAFP Commons Published Research Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "publication_id", "publisher_id", "published_at", "packet_count", "added_packets"],
+  "properties": {
+    "schema": {"const": "aafp.commons/research-publication@1"},
+    "publication_id": {"type": "string", "minLength": 1},
+    "publisher_id": {"type": "string", "minLength": 1},
+    "published_at": {"type": "integer", "minimum": 0},
+    "packet_count": {"type": "integer", "minimum": 0},
+    "added_packets": {"type": "integer", "minimum": 0}
+  }
+}

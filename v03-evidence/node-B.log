@@ -1,0 +1,6 @@
+liboqs-python faulthandler is disabled
+[node] agent_id=aafp:9c728c03dbfc78d336a540a308f985175c09e1f60e980f231d55bd168158075f role=research root=/root/commons-data
+[node] peers=['http://localhost:9081', 'http://localhost:9083']
+[node] ledger blocks=6
+[node] background threads started (heartbeat + replicate)
+[node] HTTP server on :8081 (PID 65012)

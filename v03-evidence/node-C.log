@@ -1,0 +1,11 @@
+liboqs-python faulthandler is disabled
+[node] agent_id=aafp:59e12e71637285b23ce78428c1ba87182c35613ab00c6be278c90654bc1bb587 role=reconciliation root=/root/commons-data
+[node] peers=['http://localhost:9081', 'http://localhost:9082']
+[node] ledger blocks=6
+[node] background threads started (heartbeat + replicate)
+[node] HTTP server on :8081 (PID 63900)
+[replica] failed from http://localhost:9082: timed out
+[replica] failed from http://localhost:9082: [Errno 104] Connection reset by peer
+[replica] failed from http://localhost:9081: timed out
+[replica] failed from http://localhost:9081: timed out
+[replica] failed from http://localhost:9081: <urlopen error [Errno 111] Connection refused>

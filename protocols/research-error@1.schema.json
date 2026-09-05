@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/research-error@1",
+  "title": "AAFP Commons Research Exchange Error",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "error"],
+  "properties": {
+    "schema": {"const": "aafp.commons/research-error@1"},
+    "error": {"type": "string", "minLength": 1}
+  }
+}

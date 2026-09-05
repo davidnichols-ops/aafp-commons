@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/research-index@1",
+  "title": "AAFP Commons Public Research Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "packets", "count", "max_packets", "constitutions"],
+  "properties": {
+    "schema": {"const": "aafp.commons/research-index@1"},
+    "packets": {"type": "array", "items": {"type": "object"}},
+    "count": {"type": "integer", "minimum": 0},
+    "max_packets": {"type": "integer", "minimum": 1},
+    "constitutions": {"type": "array", "items": {"type": "object"}}
+  }
+}

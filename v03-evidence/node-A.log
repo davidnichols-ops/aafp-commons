@@ -1,0 +1,8 @@
+liboqs-python faulthandler is disabled
+[node] agent_id=aafp:a2a7a06bd3a731f1fdb7e1d529b1f0b70019858deceab75abf7f3772541e24c9 role=publication root=/root/commons-data
+[node] peers=['http://localhost:9082', 'http://localhost:9083']
+[node] ledger blocks=6
+[node] background threads started (heartbeat + replicate)
+[node] HTTP server on :8081 (PID 64926)
+[replica] failed from http://localhost:9083: timed out
+[replica] failed from http://localhost:9083: <urlopen error [Errno 111] Connection refused>

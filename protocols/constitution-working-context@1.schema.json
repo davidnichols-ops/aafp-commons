@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-working-context@1",
+  "title": "AAFP Commons Active Constitution Working Context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "active", "request_id", "decision_id", "runtime", "namespace", "packet_kind", "constitution", "guidance", "provider_constraints", "provider_constraint_policy", "boundary"],
+  "properties": {
+    "schema": {"const": "aafp.commons/constitution-working-context@1"},
+    "active": {"const": true},
+    "request_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "decision_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "handshake_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "runtime": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "namespace": {"type": "string", "pattern": "^(commons|org|agent)/[a-z0-9][a-z0-9._/-]{1,126}$"},
+    "packet_kind": {"enum": ["observation", "hypothesis", "finding", "workflow", "benchmark"]},
+    "constitution": {"type": "object"},
+    "guidance": {"type": "object"},
+    "provider_constraints": {"type": "array"},
+    "provider_constraint_policy": {"const": "preserve"},
+    "boundary": {"type": "string", "minLength": 1}
+  }
+}

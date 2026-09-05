@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-adoption-envelope@1",
+  "title": "AAFP Commons Constitution Adoption Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request", "request_id", "boundary"],
+  "properties": {
+    "schema": {"const": "aafp.commons/constitution-adoption-envelope@1"},
+    "request": {"$ref": "constitution-adoption-request@1.schema.json"},
+    "request_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "boundary": {"type": "string", "minLength": 1}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/protocol-catalog@1",
+  "title": "AAFP Commons Protocol Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "protocols", "count"],
+  "properties": {
+    "schema": {"const": "aafp.commons/protocol-catalog@1"},
+    "protocols": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["protocol_id", "schema_id"],
+        "properties": {
+          "protocol_id": {"type": "string", "minLength": 1},
+          "schema_id": {"type": "string", "format": "uri"}
+        }
+      }
+    },
+    "count": {"type": "integer", "minimum": 0}
+  }
+}

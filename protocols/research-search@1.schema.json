@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/research-search@1",
+  "title": "AAFP Commons Public Research Search Results",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "query", "results", "count"],
+  "properties": {
+    "schema": {"const": "aafp.commons/research-search@1"},
+    "query": {"type": "string", "minLength": 1},
+    "results": {"type": "array", "items": {"type": "object"}},
+    "count": {"type": "integer", "minimum": 0}
+  }
+}

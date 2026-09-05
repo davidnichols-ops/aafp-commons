@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/research-checkpoint@1",
+  "title": "AAFP Commons Research Replication Checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "packet_count", "constitution_count", "packet_ids", "constitution_ids", "digest"],
+  "properties": {
+    "schema": {"const": "aafp.commons/research-checkpoint@1"},
+    "packet_count": {"type": "integer", "minimum": 0},
+    "constitution_count": {"type": "integer", "minimum": 0},
+    "packet_ids": {"type": "array", "items": {"type": "string"}},
+    "constitution_ids": {"type": "array", "items": {"type": "string"}},
+    "digest": {"type": "string", "minLength": 1}
+  }
+}

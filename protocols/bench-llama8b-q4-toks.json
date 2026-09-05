@@ -1,0 +1,42 @@
+{
+  "recipe_id": "bench-llama8b-q4-toks",
+  "version": "1.0.0",
+  "description": "Frozen benchmark: llama-3-8b Q4 token generation throughput on consumer GPU",
+  "model": {
+    "id": "Meta-Llama-3-8B-Instruct-Q4_K_M",
+    "source": "https://huggingface.co/NousResearch/Meta-Llama-3-8B-Instruct",
+    "filename": "model.safetensors",
+    "weights_sha256": "PLACEHOLDER_DOWNLOAD_AND_HASH",
+    "quantization": "Q4_K_M",
+    "context_length": 4096
+  },
+  "prompt": {
+    "text": "The quick brown fox jumps over the lazy dog. This is a test of token generation throughput. ",
+    "prompt_sha256": "sha256:6213f9b3f93e9f520d2c711aef30f31b4ab020f6e8d0f1d524f272b2efb8d20f",
+    "max_tokens": 128,
+    "temperature": 0.0,
+    "seed": 42
+  },
+  "runtime": {
+    "batch_size": 1,
+    "dtype": "f16",
+    "gpu_layers": -1,
+    "threads": 4,
+    "warmup_runs": 2
+  },
+  "measured_field": "tok_s",
+  "measurement_method": "mean_tokens_per_second_over_measured_runs",
+  "artifact_schema": {
+    "host": "string",
+    "gpu_name": "string",
+    "recipe_digest": "sha256 of this contract file",
+    "tok_s": "float",
+    "raw_log_digest": "sha256 of raw benchmark log",
+    "weights_digest": "sha256 of model weights file"
+  },
+  "rules": {
+    "weights_missing": "abort — do not approximate",
+    "no_nvidia_smi": "do not estimate tok/s from GPU utilization",
+    "rerunnable": "any node with the same weights + recipe must reproduce within 15%"
+  }
+}

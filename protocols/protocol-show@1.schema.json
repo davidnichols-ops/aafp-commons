@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/protocol-show@1",
+  "title": "AAFP Commons Protocol Schema Detail",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "protocol_id", "schema_document"],
+  "properties": {
+    "schema": {"const": "aafp.commons/protocol-show@1"},
+    "protocol_id": {"type": "string", "minLength": 1},
+    "schema_document": {"type": "object"}
+  }
+}

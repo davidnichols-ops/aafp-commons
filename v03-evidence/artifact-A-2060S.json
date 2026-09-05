@@ -1,0 +1,11 @@
+{
+  "gpu_name": "NVIDIA GeForce RTX 2060 SUPER",
+  "host": "89d829bcd2f8",
+  "kind": "evidence",
+  "raw_log": "run 1: tokens=128 elapsed=8.613s tok/s=14.86\nrun 2: tokens=128 elapsed=8.596s tok/s=14.89\nrun 3: tokens=128 elapsed=8.577s tok/s=14.92\nmean_tok_s=14.89\n",
+  "raw_log_digest": "sha256:7b73a29d0f2d31f4e07568f0246b2c698b826a3d7d725b91b37b3f5cb1cda4a6",
+  "recipe_digest": "sha256:de367cf34e89a528ed20aa31e99a29e3614ee972acdec1be332eede1ee981529",
+  "tok_s": 14.89,
+  "uri": "commons/artifact/80b52bdd6a42c1a0850f67f5c97c8e84a33234cd4b74ddcbd8d61618faa010e6",
+  "weights_digest": "sha256:c64510f0f03775ad3daadf22f603209a216543e74cc0ff8e44b8f4c19229f4a4"
+}

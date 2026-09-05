@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/protocol-error@1",
+  "title": "AAFP Commons Protocol Error",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "error"],
+  "properties": {
+    "schema": {"const": "aafp.commons/protocol-error@1"},
+    "error": {"type": "string", "minLength": 1}
+  }
+}

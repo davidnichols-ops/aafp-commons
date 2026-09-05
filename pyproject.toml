@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aafp-commons"
+version = "0.1.0"
+description = "Signed, evidence-aware collective memory for software agents"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ironclad>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.12", "mypy>=1.15"]
+transport = ["aafp>=0.1.0"]
+
+[project.scripts]
+aafp-commons = "aafp_commons.cli:main"
+
+[tool.uv.sources]
+aafp = { path = "../aafp/crates/aafp-py" }
+ironclad = { path = "../ironclad", editable = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aafp_commons"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"protocols" = "aafp_commons/protocols"
+"constitutions" = "aafp_commons/constitutions"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["aafp_commons"]
+
+[[tool.mypy.overrides]]
+module = ["ironclad.*"]
+ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "jsonschema>=4.23",
+]

@@ -1,0 +1,34 @@
+{
+  "agent_id": "aafp:9c728c03dbfc78d336a540a308f985175c09e1f60e980f231d55bd168158075f",
+  "role": "research",
+  "packet_set_merkle": "sha256:27ca32a08dd1d5e16f8ca09a04b6763c3315004532b096a14de72fc7e2e6be5d",
+  "local_tip": "sha256:48770b6772e4080c19a067db98e8b0d20ee872c0194f512b1ac66e39a3c6e6af",
+  "local_height": 6,
+  "peer_tips": {
+    "aafp:a2a7a06bd3a731f1fdb7e1d529b1f0b70019858deceab75abf7f3772541e24c9": {
+      "tip": "sha256:e92ac4e16c6bcb3b8bc76b0ab2ec6a34a1a1e7454310093946754a431894481f",
+      "height": 6,
+      "packet_set_merkle": "sha256:27ca32a08dd1d5e16f8ca09a04b6763c3315004532b096a14de72fc7e2e6be5d",
+      "fork_ids": [
+        "sha256:b897080d12a28defdac6e2550b2bfeb19dfec5b399d0ceb66fcf6f9191f5b62a"
+      ]
+    },
+    "aafp:59e12e71637285b23ce78428c1ba87182c35613ab00c6be278c90654bc1bb587": {
+      "tip": "sha256:1ce1fe408f0095e6dfe78a193d4c32b4d8d828cdc709d638569c02b203beff8b",
+      "height": 6,
+      "packet_set_merkle": "sha256:27ca32a08dd1d5e16f8ca09a04b6763c3315004532b096a14de72fc7e2e6be5d",
+      "fork_ids": [
+        "sha256:b897080d12a28defdac6e2550b2bfeb19dfec5b399d0ceb66fcf6f9191f5b62a"
+      ]
+    }
+  },
+  "fork_ids": [
+    "sha256:b897080d12a28defdac6e2550b2bfeb19dfec5b399d0ceb66fcf6f9191f5b62a"
+  ],
+  "conflict_ids": [
+    "sha256:741b147d97ed22c99306a8473cd2531c00e52b7b9bd15ab74759641afadc9235",
+    "sha256:dd264c97920691a44bce7eec7e6546af3b2d3ce4ecf4d3d71e56a80c1eb0131c"
+  ],
+  "resolution_ids": [],
+  "packet_count": 6
+}

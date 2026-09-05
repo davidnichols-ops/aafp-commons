@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+commons-data/
+keys/
+*.jsonl
+data/
+**/data/
+v03-evidence/identity-*.json
+v03-evidence/*state*.tar.gz
+v03-evidence/objects-*.tar.gz

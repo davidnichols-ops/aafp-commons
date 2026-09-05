@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/research-delta@1",
+  "title": "AAFP Commons Research Replication Delta",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "packets", "constitutions", "count"],
+  "properties": {
+    "schema": {"const": "aafp.commons/research-delta@1"},
+    "packets": {"type": "array", "items": {"type": "object"}},
+    "constitutions": {"type": "array", "items": {"type": "object"}},
+    "count": {"type": "integer", "minimum": 0}
+  }
+}

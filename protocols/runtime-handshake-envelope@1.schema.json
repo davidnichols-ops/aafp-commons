@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/runtime-handshake-envelope@1",
+  "title": "AAFP Commons Runtime Handshake Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "handshake", "handshake_id", "boundary"],
+  "properties": {
+    "schema": {"const": "aafp.commons/runtime-handshake-envelope@1"},
+    "handshake": {"$ref": "runtime-handshake@1.schema.json"},
+    "handshake_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "boundary": {"type": "string", "minLength": 1}
+  }
+}

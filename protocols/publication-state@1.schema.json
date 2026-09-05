@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/publication-state@1",
+  "title": "AAFP Commons Publication Service State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "max_publications_per_publisher", "revoked_publishers", "publisher_counts", "publications"],
+  "properties": {
+    "schema": {"const": "aafp.commons/publication-state@1"},
+    "max_publications_per_publisher": {"type": "integer", "minimum": 1},
+    "revoked_publishers": {"type": "array", "items": {"type": "string"}},
+    "publisher_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "publications": {"type": "array", "items": {"$ref": "research-publication@1.schema.json"}}
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-adoption-request-list@1",
+  "title": "AAFP Commons Adoption Request List",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema"],
+  "properties": {
+    "schema": {"const": "aafp.commons/constitution-adoption-request-list@1"},
+    "requests": {"type": "array", "items": {"type": "object"}},
+    "count": {"type": "integer", "minimum": 0},
+    "boundary": {"type": "string"},
+    "error": {"type": "string"}
+  },
+  "anyOf": [{"required": ["requests", "count"]}, {"required": ["error"]}]
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-manifest@1",
+  "title": "AAFP Commons Constitution Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["constitution_id", "version", "namespace_prefixes", "allowed_kinds", "allowed_visibilities", "allowed_licenses", "minimum_evidence", "required_evidence_kinds", "require_evidence_digests", "supersedes", "description", "guidance", "source", "runtime_compatibility", "provider_constraints", "provider_constraint_policy", "schema"],
+  "properties": {
+    "constitution_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "version": {"type": "string", "pattern": "^[0-9A-Za-z][0-9A-Za-z._-]{0,63}$"},
+    "namespace_prefixes": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "allowed_kinds": {"type": "array", "minItems": 1, "items": {"enum": ["observation", "hypothesis", "finding", "workflow", "benchmark"]}},
+    "allowed_visibilities": {"type": "array", "minItems": 1, "items": {"enum": ["public", "organization", "private"]}},
+    "allowed_licenses": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "minimum_evidence": {"type": "integer", "minimum": 1},
+    "required_evidence_kinds": {"type": "array", "items": {"type": "string"}},
+    "require_evidence_digests": {"type": "boolean"},
+    "supersedes": {"type": ["object", "null"]},
+    "description": {"type": "string"},
+    "guidance": {"type": ["object", "null"]},
+    "source": {"type": ["object", "null"]},
+    "runtime_compatibility": {"type": ["object", "null"]},
+    "provider_constraints": {"type": "array"},
+    "provider_constraint_policy": {"const": "preserve"},
+    "schema": {"const": "aafp.commons/constitution-manifest@1"}
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-adoption-decision@1",
+  "title": "AAFP Commons Constitution Adoption Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "constitution", "runtime", "accepted", "reason", "decided_at", "provider_constraint_policy", "schema"],
+  "properties": {
+    "request_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "constitution": {"$ref": "#/$defs/constitutionRef"},
+    "runtime": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "accepted": {"type": "boolean"},
+    "reason": {"type": "string", "maxLength": 500},
+    "decided_at": {"type": "integer", "minimum": 0},
+    "provider_constraint_policy": {"const": "preserve"},
+    "schema": {"const": "aafp.commons/constitution-adoption-decision@1"}
+  },
+  "$defs": {
+    "constitutionRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constitution_id", "version", "digest"],
+      "properties": {
+        "constitution_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+        "version": {"type": "string", "pattern": "^[0-9][0-9A-Za-z._+-]{0,63}$"},
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

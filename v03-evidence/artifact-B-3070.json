@@ -1,0 +1,11 @@
+{
+  "gpu_name": "NVIDIA GeForce RTX 3070 Laptop GPU",
+  "host": "f1b5f7b4ad83",
+  "kind": "evidence",
+  "raw_log": "run 1: tokens=112 elapsed=6.070s tok/s=18.45\nrun 2: tokens=112 elapsed=6.033s tok/s=18.57\nrun 3: tokens=112 elapsed=6.142s tok/s=18.23\nmean_tok_s=18.42\n",
+  "raw_log_digest": "sha256:2aae56dc5a48352c7f1ad7b32e2399f04ae313b149f1e87d58676f42b3243f06",
+  "recipe_digest": "sha256:de367cf34e89a528ed20aa31e99a29e3614ee972acdec1be332eede1ee981529",
+  "tok_s": 18.42,
+  "uri": "commons/artifact/efce4091b6fa87780ab34c0caa79ff7d3620dd1f1c1976e981af29be62c14e60",
+  "weights_digest": "sha256:c64510f0f03775ad3daadf22f603209a216543e74cc0ff8e44b8f4c19229f4a4"
+}

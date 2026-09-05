@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-selection@1",
+  "title": "AAFP Commons constitution selection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "selected"],
+  "properties": {
+    "schema": {"const": "aafp.commons/constitution-selection@1"},
+    "selected": {"type": "boolean"},
+    "reason": {"type": "string"},
+    "constitution_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["constitution_id", "version", "digest"],
+      "properties": {
+        "constitution_id": {"type": "string"}, "version": {"type": "string"},
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "namespace_prefixes": {"type": "array", "items": {"type": "string"}},
+    "allowed_kinds": {"type": "array", "items": {"type": "string"}},
+    "guidance": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["summary", "principles", "text"],
+      "properties": {
+        "summary": {"type": "string"},
+        "principles": {"type": "array", "items": {"type": "string"}},
+        "text": {"type": "string"}
+      }
+    },
+    "provider_constraint_policy": {"const": "preserve"},
+    "boundary": {"type": "string"}
+  }
+}

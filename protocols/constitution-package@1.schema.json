@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/constitution-package@1",
+  "title": "AAFP Commons Constitution Package Detail",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "package_id", "version"],
+  "properties": {
+    "schema": {"const": "aafp.commons/constitution-package@1"},
+    "package_id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "display_name": {}, "description": {}, "tags": {}, "manifest": {},
+    "guidance": {}, "source": {}, "runtime_compatibility": {},
+    "provider_constraints": {}, "provider_constraint_policy": {},
+    "agent_instruction": {}, "error": {}
+  }
+}

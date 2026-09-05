@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/runtime-handshake-list@1",
+  "title": "AAFP Commons Runtime Handshake List",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema"],
+  "properties": {
+    "schema": {"const": "aafp.commons/runtime-handshake-list@1"},
+    "handshakes": {"type": "array", "items": {"type": "object"}},
+    "count": {"type": "integer", "minimum": 0},
+    "boundary": {"type": "string"},
+    "error": {"type": "string"}
+  },
+  "anyOf": [{"required": ["handshakes", "count"]}, {"required": ["error"]}]
+}
