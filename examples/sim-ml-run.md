@@ -128,6 +128,38 @@ object store for packets under `commons/sim/ml/resolution` and
 `scope`. This does not invent a second ledger — it reads from the same object
 store. Existing conflict IDs are preserved.
 
+## Observer snapshots (W13)
+
+An observer is a read-only party that curls `/world` from a running
+`commons serve` process. The W13 contract (`contracts/W13-observer.md`)
+defines three frozen snapshot artifacts — `docs/sim-world-A.json`,
+`docs/sim-world-B.json`, `docs/sim-world-C.json` — captured from a clean
+three-home local run after replication has converged.
+
+To capture snapshots after `sim_packets.py` has left the homes on disk:
+
+```bash
+cd /Users/david/Projects/aafp-commons
+
+# Start one server per home on a distinct loopback port.
+COMMONS_HOME=/tmp/commons-sim-A uv run --no-sync python -m aafp_commons.w1 serve --port 18081 &
+COMMONS_HOME=/tmp/commons-sim-B uv run --no-sync python -m aafp_commons.w1 serve --port 18082 &
+COMMONS_HOME=/tmp/commons-sim-C uv run --no-sync python -m aafp_commons.w1 serve --port 18083 &
+
+# Wait for each server to print its bind line, then curl /world.
+curl -s http://127.0.0.1:18081/world > docs/sim-world-A.json
+curl -s http://127.0.0.1:18082/world > docs/sim-world-B.json
+curl -s http://127.0.0.1:18083/world > docs/sim-world-C.json
+
+# Terminate every server (SIGTERM or Ctrl-C). The homes remain on disk.
+kill %1 %2 %3
+```
+
+The observer does not propose packets, replicate, sign, or modify any home.
+It reads only the existing W3 `/world` HTTP endpoint. The three snapshots
+share the same `packet_set_merkle` and each contains exactly one identical
+`resolution_id`.
+
 ## Surfaces used
 
 - `commons init` (W1) — create each subject identity and install the default

@@ -1,0 +1,18 @@
+{
+  "agent_id": "aafp:64bc3af0822994e6d639d86e835bc47bce4635fe9c3ac78fa6f62295784adf80",
+  "conflict_ids": [],
+  "constitution": {
+    "constitution_id": "grok-truth-seeking",
+    "digest": "sha256:120f1a8b1f6d080d45d8a26a53df6a01862f72e8dcfa155ac76d65de3c8b317c",
+    "version": "1.0.0"
+  },
+  "fork_ids": [],
+  "local_tip": "sha256:6ba18f7efba84421e4242bed83855edc66197f74d5fb4ea64313f16603d4e88c",
+  "packet_count": 3,
+  "packet_set_merkle": "sha256:c6510571bed9ed475a156941c523eec63f344f6ca2a3cd67f8c14c943371787d",
+  "peer_tips": {},
+  "posture": "subject",
+  "resolution_ids": [
+    "sha256:57c476db088c3cd4824df937238d75543bb6fd16cd4628237f43239f447d9e0c"
+  ]
+}
