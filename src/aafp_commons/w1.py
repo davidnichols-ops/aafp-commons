@@ -10,6 +10,8 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+from urllib.request import urlopen
 
 from ironclad.trust import Identity
 
@@ -19,6 +21,7 @@ from aafp_commons.identity import derive_agent_id
 from aafp_commons.ledger import merkle_root
 from aafp_commons.packages import default_registry
 from aafp_commons.repository import CommonsRepository
+from aafp_commons.signing import SignedPacket
 
 DEFAULT_CONSTITUTION = "grok-truth-seeking@1.0.0"
 W1_VERSION = "0.1.0"
@@ -192,6 +195,44 @@ def _get(home: Path, packet_id: str) -> int:
     return 0
 
 
+def _packet_export(home: Path) -> dict[str, Any]:
+    packets = CommonsRepository(home).query("")
+    return {"packets": [packet.to_dict() for packet in packets]}
+
+
+def _loopback_peer(peer: str) -> str:
+    parsed = urlparse(peer)
+    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "::1"}:
+        raise ValueError("replication peer must be an http loopback URL")
+    return peer.rstrip("/") + "/packets"
+
+
+def _replicate(home: Path, peer: str) -> dict[str, Any]:
+    identity = _load_identity(home)
+    if identity is None:
+        raise ValueError("INIT_REQUIRED: initialize this home before replication")
+    with urlopen(_loopback_peer(peer), timeout=5) as response:
+        payload = json.load(response)
+    exported = payload.get("packets") if isinstance(payload, dict) else None
+    if not isinstance(exported, list):
+        raise ValueError("peer packet export must contain a packets list")
+
+    repository = CommonsRepository(home)
+    accepted = 0
+    already_present = 0
+    for value in exported:
+        if not isinstance(value, dict):
+            raise ValueError("peer packet export contains a non-object packet")
+        decision = repository.submit(SignedPacket.from_dict(value), identity)
+        if not decision.accepted:
+            raise ValueError("packet rejected during replication: " + "; ".join(decision.reasons))
+        if decision.status == "already-present":
+            already_present += 1
+        else:
+            accepted += 1
+    return {"accepted": accepted, "already_present": already_present, "packet_count": len(exported)}
+
+
 class _WorldServer(ThreadingHTTPServer):
     allow_reuse_address = True
     daemon_threads = True
@@ -200,12 +241,38 @@ class _WorldServer(ThreadingHTTPServer):
 def _handler(home: Path) -> type[BaseHTTPRequestHandler]:
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802
-            if self.path != "/world":
+            if self.path == "/world":
+                payload = json.dumps(world(home), sort_keys=True).encode("utf-8")
+            elif self.path == "/packets":
+                payload = json.dumps(_packet_export(home), sort_keys=True).encode("utf-8")
+            else:
                 self.send_response(404)
                 self.end_headers()
                 return
-            payload = json.dumps(world(home), sort_keys=True).encode("utf-8")
             self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def do_POST(self) -> None:  # noqa: N802
+            if self.path != "/replicate":
+                self.send_response(404)
+                self.end_headers()
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                request = json.loads(self.rfile.read(length).decode("utf-8"))
+                peer = request.get("peer") if isinstance(request, dict) else None
+                if not isinstance(peer, str):
+                    raise ValueError("replicate requires a peer URL")
+                result = {"ok": True, **_replicate(home, peer)}
+                status = 200
+            except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+                result = {"ok": False, "error": str(error)}
+                status = 400
+            payload = json.dumps(result, sort_keys=True).encode("utf-8")
+            self.send_response(status)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(payload)))
             self.end_headers()
