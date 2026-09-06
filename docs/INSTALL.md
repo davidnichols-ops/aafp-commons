@@ -39,6 +39,19 @@ The wheel vendors the thin `ironclad.canon` and `ironclad.trust` surface used
 by Commons. It does not resolve the unrelated public `ironclad` package or a
 development-tree path; Ed25519/CBOR compatibility is tested in-tree.
 
+## Optional AAFP transport
+
+The default install does not build the Rust-backed AAFP transport. To enable
+it, use the reproducibly pinned public source:
+
+```bash
+uv sync --extra transport
+```
+
+This fetches `davidnichols-ops/aafp` at the commit recorded in `pyproject.toml`
+and `uv.lock`, using the `crates/aafp-py` subdirectory. A Rust toolchain is
+required only for this optional extra.
+
 ## SSH authentication
 
 Both wrapper sections below assume you can reach the private repository over

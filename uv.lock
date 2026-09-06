@@ -9,7 +9,7 @@ resolution-markers = [
 [[package]]
 name = "aafp"
 version = "0.1.0"
-source = { directory = "../aafp/crates/aafp-py" }
+source = { git = "https://github.com/davidnichols-ops/aafp.git?subdirectory=crates%2Faafp-py&rev=17a570870bb45d21a1a17c9ba834fd413a11f2d4#17a570870bb45d21a1a17c9ba834fd413a11f2d4" }
 
 [[package]]
 name = "aafp-commons"
@@ -37,7 +37,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aafp", marker = "extra == 'transport'", directory = "../aafp/crates/aafp-py" },
+    { name = "aafp", marker = "extra == 'transport'", git = "https://github.com/davidnichols-ops/aafp.git?subdirectory=crates%2Faafp-py&rev=17a570870bb45d21a1a17c9ba834fd413a11f2d4" },
     { name = "cbor2", specifier = ">=5.0.0" },
     { name = "cryptography", specifier = ">=42.0.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.15" },
