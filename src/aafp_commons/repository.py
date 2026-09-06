@@ -79,12 +79,17 @@ class CommonsRepository:
             raise ValueError("packet id must be a sha256 content address")
         return self.objects_dir / f"{packet_id.removeprefix('sha256:')}.json"
 
-    def submit(self, signed: SignedPacket, authority: Identity) -> PolicyDecision:
+    def submit(
+        self,
+        signed: SignedPacket,
+        authority: Identity,
+        ucan: str | None = None,
+    ) -> PolicyDecision:
         try:
             constitution = self.constitutions.resolve(signed.packet.constitution)
         except ConstitutionError as error:
             return PolicyDecision(False, "rejected", (str(error),))
-        decision = self.policy.evaluate(signed, constitution)
+        decision = self.policy.evaluate(signed, constitution, ucan=ucan)
         if not decision.accepted:
             return decision
         self.initialize()

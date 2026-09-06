@@ -84,6 +84,13 @@ from aafp_commons.transport import (
     encode_adoption_request,
     encode_runtime_handshake,
 )
+from aafp_commons.ucan import (
+    UcanClaims,
+    UcanError,
+    did_key_from_public_key,
+    encode_ucan,
+    verify_ucan,
+)
 
 __all__ = [
     "ADOPTION_BOUNDARY",
@@ -160,6 +167,11 @@ __all__ = [
     "protocol_ids",
     "schema_path",
     "version_key",
+    "UcanClaims",
+    "UcanError",
+    "did_key_from_public_key",
+    "encode_ucan",
+    "verify_ucan",
 ]
 
 __version__ = "0.1.0"

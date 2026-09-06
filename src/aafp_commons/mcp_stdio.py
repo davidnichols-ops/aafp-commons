@@ -78,6 +78,7 @@ TOOL_DEFINITIONS: tuple[dict[str, Any], ...] = (
                 "method": {"type": "object"},
                 "visibility": {"type": "string"},
                 "license": {"type": "string"},
+                "ucan": {"type": "string"},
             },
             "required": ["namespace", "claim", "evidence"],
             "additionalProperties": False,
@@ -183,10 +184,14 @@ def _propose(home: Path, arguments: dict[str, Any]) -> tuple[dict[str, Any], boo
             license=arguments.get("license", "commons-v1"),
         )
         signed = sign_packet(packet, identity)
-        decision = CommonsRepository(home).submit(signed, identity)
+        decision = CommonsRepository(home).submit(signed, identity, ucan=arguments.get("ucan"))
     except (KeyError, TypeError, ValueError, ConstitutionError) as error:
         return _error("INVALID_PACKET", str(error))
     if not decision.accepted:
+        if any(reason.startswith("UCAN_REQUIRED") for reason in decision.reasons):
+            return _error("UCAN_REQUIRED", "submit requires a UCAN")
+        if any(reason.startswith("UCAN_INVALID") for reason in decision.reasons):
+            return _error("UCAN_INVALID", "UCAN admission failed", reasons=list(decision.reasons))
         return _error(
             "ADMISSION_REJECTED",
             "constitution or policy rejected the packet",

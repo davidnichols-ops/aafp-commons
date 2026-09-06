@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import time
 from dataclasses import dataclass
@@ -9,6 +10,7 @@ from typing import Any
 
 from aafp_commons.constitutions import ConstitutionManifest
 from aafp_commons.signing import SignedPacket
+from aafp_commons.ucan import UcanError, verify_ucan
 
 _SECRET_PATTERNS = (
     re.compile(r"(?i)\b(api[_-]?key|secret|password|private[_-]?key)\s*[:=]\s*\S+"),
@@ -35,6 +37,7 @@ class AdmissionPolicy:
         signed: SignedPacket,
         constitution: ConstitutionManifest | None = None,
         now: int | None = None,
+        ucan: str | None = None,
     ) -> PolicyDecision:
         current = int(time.time()) if now is None else now
         reasons: list[str] = []
@@ -69,6 +72,14 @@ class AdmissionPolicy:
             reasons.append("public packets require evidence URIs")
         if _contains_secret(packet.to_dict()):
             reasons.append("packet appears to contain secret material")
+        require_ucan = os.environ.get("COMMONS_REQUIRE_UCAN") == "1"
+        if require_ucan and ucan is None:
+            reasons.append("UCAN_REQUIRED")
+        elif ucan is not None:
+            try:
+                verify_ucan(ucan, packet, now=current)
+            except UcanError as error:
+                reasons.append(str(error))
         return PolicyDecision(
             accepted=not reasons,
             status="admissible" if not reasons else "rejected",
