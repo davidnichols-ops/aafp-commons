@@ -224,8 +224,13 @@ def check_bundle(path: Path) -> dict[str, Any]:
 
 
 DEFAULT_RELY_POLICY: dict[str, Any] = {
+    "mode": "display",
+    "accept_resolution": False,
+    "accepted_decisions": ["prefer-a", "prefer-b"],
     "trusted_verifiers": [],
+    "trusted_resolvers": [],
     "allow_same_operator": False,
+    "allow_same_operator_resolve": False,
 }
 
 
@@ -240,8 +245,13 @@ def load_rely_policy(home: str | Path) -> dict[str, Any]:
         return dict(DEFAULT_RELY_POLICY)
     value = json.loads(path.read_text(encoding="utf-8"))
     return {
+        "mode": value.get("mode", "display"),
+        "accept_resolution": bool(value.get("accept_resolution", False)),
+        "accepted_decisions": list(value.get("accepted_decisions", ["prefer-a", "prefer-b"])),
         "trusted_verifiers": list(value.get("trusted_verifiers", [])),
+        "trusted_resolvers": list(value.get("trusted_resolvers", [])),
         "allow_same_operator": bool(value.get("allow_same_operator", False)),
+        "allow_same_operator_resolve": bool(value.get("allow_same_operator_resolve", False)),
     }
 
 
@@ -305,16 +315,48 @@ def status(
     from aafp_commons.conflicts import projection
 
     conflict = projection(repository, claim_id, policy)
+    rely_reason = "ok_resolution" if rely_ok else "untrusted_verifier"
+    if conflict["conflict"]:
+        rely_ok = False
+        rely_reason = "conflict_open"
+        for item in repository.query("commons/review/resolution"):
+            scope = item.packet.scope
+            if scope.get("claim_id") != claim_id:
+                continue
+            resolver = scope.get("resolver_subject")
+            if resolver == signer_agent_id and not policy.get("allow_same_operator_resolve", False):
+                rely_reason = "same_operator"
+                continue
+            if scope.get("decision") in {"neither", "escalate"}:
+                rely_reason = "decision_neither"
+                continue
+            if (
+                policy.get("mode") == "consequential"
+                and policy.get("accept_resolution") is True
+                and scope.get("decision") in policy.get("accepted_decisions", [])
+                and resolver in policy.get("trusted_resolvers", [])
+            ):
+                rely_ok = True
+                rely_reason = "ok_resolution"
+                break
+            rely_reason = (
+                "policy_display"
+                if policy.get("mode") != "consequential"
+                else "untrusted_resolver"
+            )
+    elif policy.get("mode") != "consequential":
+        rely_reason = "policy_display"
     return {
         **conflict,
         "claim_id": claim_id,
         "evidence_supplied": supplied,
         "digest_checked": checked,
         "reproduced": reproduced,
-        "supported": supported,
+        "supported": supported and not conflict["conflict"],
         "verifier_signed": verifier_signed,
         "independent_corroboration": independent,
-        "rely_ok": rely_ok if not conflict["conflict"] else False,
+        "rely_ok": rely_ok,
+        "rely_reason": rely_reason,
     }
 
 
