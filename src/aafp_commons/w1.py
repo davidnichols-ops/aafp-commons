@@ -272,6 +272,44 @@ def _loopback_peer(peer: str) -> str:
     return peer.rstrip("/") + "/packets"
 
 
+def _peers_path(home: Path) -> Path:
+    return home / "peers.json"
+
+
+def _read_peers(home: Path) -> list[str]:
+    path = _peers_path(home)
+    if not path.exists():
+        return []
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, list) or any(not isinstance(peer, str) for peer in value):
+        raise ValueError("peers.json must contain a URL list")
+    return value
+
+
+def _write_peers(home: Path, peers: list[str]) -> None:
+    _peers_path(home).write_text(json.dumps(sorted(set(peers)), indent=2) + "\n", encoding="utf-8")
+
+
+def _validate_peer(peer: str) -> str:
+    return _loopback_peer(peer)[:-len("/packets")]
+
+
+def _follow(home: Path, peer: str) -> dict[str, Any]:
+    peer = _validate_peer(peer)
+    peers = _read_peers(home)
+    if peer not in peers:
+        peers.append(peer)
+    _write_peers(home, peers)
+    return {"followed": peer, "peers": sorted(peers)}
+
+
+def _unfollow(home: Path, peer: str) -> dict[str, Any]:
+    peer = _validate_peer(peer)
+    peers = [item for item in _read_peers(home) if item != peer]
+    _write_peers(home, peers)
+    return {"unfollowed": peer, "peers": sorted(peers)}
+
+
 def _replicate(home: Path, peer: str) -> dict[str, Any]:
     identity = _load_identity(home)
     if identity is None:
@@ -298,6 +336,11 @@ def _replicate(home: Path, peer: str) -> dict[str, Any]:
     return {"accepted": accepted, "already_present": already_present, "packet_count": len(exported)}
 
 
+def _pull(home: Path) -> dict[str, Any]:
+    results = [_replicate(home, peer) for peer in _read_peers(home)]
+    return {"peers": len(results), "results": results}
+
+
 class _WorldServer(ThreadingHTTPServer):
     allow_reuse_address = True
     daemon_threads = True
@@ -308,7 +351,7 @@ def _handler(home: Path) -> type[BaseHTTPRequestHandler]:
         def do_GET(self) -> None:  # noqa: N802
             if self.path == "/world":
                 payload = json.dumps(world(home), sort_keys=True).encode("utf-8")
-            elif self.path == "/packets":
+            elif self.path.startswith("/packets"):
                 payload = json.dumps(_packet_export(home), sort_keys=True).encode("utf-8")
             else:
                 self.send_response(404)
@@ -321,17 +364,25 @@ def _handler(home: Path) -> type[BaseHTTPRequestHandler]:
             self.wfile.write(payload)
 
         def do_POST(self) -> None:  # noqa: N802
-            if self.path != "/replicate":
+            if self.path not in {"/replicate", "/follow", "/pull"}:
                 self.send_response(404)
                 self.end_headers()
                 return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 request = json.loads(self.rfile.read(length).decode("utf-8"))
-                peer = request.get("peer") if isinstance(request, dict) else None
-                if not isinstance(peer, str):
-                    raise ValueError("replicate requires a peer URL")
-                result = {"ok": True, **_replicate(home, peer)}
+                if self.path == "/follow":
+                    peer = request.get("peer") if isinstance(request, dict) else None
+                    if not isinstance(peer, str):
+                        raise ValueError("follow requires a peer URL")
+                    result = {"ok": True, **_follow(home, peer)}
+                elif self.path == "/pull":
+                    result = {"ok": True, **_pull(home)}
+                else:
+                    peer = request.get("peer") if isinstance(request, dict) else None
+                    if not isinstance(peer, str):
+                        raise ValueError("replicate requires a peer URL")
+                    result = {"ok": True, **_replicate(home, peer)}
                 status = 200
             except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
                 result = {"ok": False, "error": str(error)}
@@ -418,6 +469,13 @@ def build_parser() -> argparse.ArgumentParser:
     resolve_cmd.add_argument("claim_id")
     resolve_cmd.add_argument("--prefer", required=True)
     resolve_cmd.add_argument("--rationale", required=True)
+    follow = commands.add_parser("follow", help="follow an explicit loopback peer")
+    follow.add_argument("peer")
+    unfollow = commands.add_parser("unfollow", help="remove an explicit peer")
+    unfollow.add_argument("peer")
+    commands.add_parser("pull", help="pull packets from followed peers")
+    published = commands.add_parser("import-published", help="import one local public snapshot")
+    published.add_argument("snapshot", type=Path)
     policy = commands.add_parser("policy", help="show or update local rely policy")
     policy_commands = policy.add_subparsers(dest="policy_command", required=True)
     policy_commands.add_parser("show")
@@ -517,6 +575,24 @@ def main(argv: list[str] | None = None) -> int:
             constitution = repository.constitutions.resolve(reference)
             print(json.dumps(resolve(repository, args.claim_id, identity, constitution,
                                       args.prefer, args.rationale), indent=2))
+            return 0
+        if args.command == "follow":
+            print(json.dumps(_follow(home, args.peer), indent=2))
+            return 0
+        if args.command == "unfollow":
+            print(json.dumps(_unfollow(home, args.peer), indent=2))
+            return 0
+        if args.command == "pull":
+            print(json.dumps(_pull(home), indent=2))
+            return 0
+        if args.command == "import-published":
+            from aafp_commons.sharing import import_public_snapshot
+            identity = _load_identity(home)
+            if identity is None:
+                raise ValueError("INIT_REQUIRED: initialize this home before import")
+            snapshot = json.loads(args.snapshot.read_text(encoding="utf-8"))
+            accepted = import_public_snapshot(CommonsRepository(home), snapshot, identity)
+            print(json.dumps({"accepted": accepted}, indent=2))
             return 0
         if args.command == "policy":
             from aafp_commons.verification import DEFAULT_RELY_POLICY, load_rely_policy
