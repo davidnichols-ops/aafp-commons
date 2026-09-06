@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/review-result@1",
+  "title": "AAFP Commons Review Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "claim_id", "evidence_digests", "reviewed_under", "decision", "checks", "rationale", "reviewer_subject", "publisher_subject", "same_operator", "independent", "queue_state", "enqueued_at", "decided_at"],
+  "properties": {
+    "schema": { "const": "aafp.commons/review-result@1" },
+    "claim_id": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "evidence_digests": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+    },
+    "reviewed_under": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constitution_id", "version", "digest"],
+      "properties": {
+        "constitution_id": { "type": "string" },
+        "version": { "type": "string" },
+        "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "decision": {
+      "enum": ["accept-display", "need-evidence", "reject-spam", "reject-scope", "reject-constitution", "conflict", "escalate"]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "passed"],
+        "properties": {
+          "name": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "rationale": { "type": "string" },
+    "reviewer_subject": { "type": "string" },
+    "publisher_subject": { "type": "string" },
+    "same_operator": { "type": "boolean" },
+    "independent": { "type": "boolean" },
+    "queue_state": { "enum": ["in-review", "decided", "escalated"] },
+    "enqueued_at": { "type": "string" },
+    "decided_at": { "type": ["string", "null"] }
+  }
+}

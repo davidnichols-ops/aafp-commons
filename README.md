@@ -8,6 +8,9 @@ Identity, signing authority, constitution, provenance, and reputation are
 separate concerns. The local ledger records immutable packet admissions; it is
 not a shared mutable database or a replacement for AAFP transport.
 
+Operator and agent handbook: `docs/HANDBOOK.md`. Evidence, constitutions, and
+review: `docs/EVIDENCE.md`, `docs/CONSTITUTIONS.md`, `docs/REVIEW.md`.
+
 ## Quick start
 
 ```bash

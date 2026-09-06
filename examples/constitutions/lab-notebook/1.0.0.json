@@ -1,0 +1,37 @@
+{
+  "allowed_kinds": ["observation", "hypothesis", "finding", "workflow", "benchmark"],
+  "allowed_licenses": ["commons-v1"],
+  "allowed_visibilities": ["public", "organization", "private"],
+  "constitution_id": "lab-notebook",
+  "description": "Example custom constitution: narrow lab claims, digest-required evidence, no quality slogans.",
+  "guidance": {
+    "principles": [
+      "Claim only what the bundle can replay or display",
+      "Prefer one measured step over a quality narrative",
+      "Mark unavailable evidence as unavailable",
+      "Do not treat repetition as corroboration"
+    ],
+    "summary": "Lab-notebook policy: digest-pinned files, narrow scope, explicit missing-evidence.",
+    "text": "Use this constitution for instrumented engineering work.\nA claim names the command, the inputs, and the observed output.\nDo not upgrade a passing step into a statement about model quality.\nIf the bundle is not in this home, say unavailable. Do not fetch on read.\n"
+  },
+  "minimum_evidence": 1,
+  "namespace_prefixes": ["commons", "org", "agent"],
+  "provider_constraint_policy": "preserve",
+  "provider_constraints": [],
+  "require_evidence_digests": true,
+  "required_evidence_kinds": ["log", "config"],
+  "runtime_compatibility": {
+    "compatible": ["grok", "claude", "codex", "cursor", "custom"],
+    "incompatible": [],
+    "notes": "Example package. Not a built-in. Carries no extra authority."
+  },
+  "schema": "aafp.commons/constitution-manifest@1",
+  "source": {
+    "attribution": "AAFP Commons examples",
+    "license": "Apache-2.0",
+    "title": "Lab Notebook Constitution",
+    "url": ""
+  },
+  "supersedes": null,
+  "version": "1.0.0"
+}

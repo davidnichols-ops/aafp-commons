@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aafp-commons.org/schema/evidence-bundle@1",
+  "title": "AAFP Commons Evidence Bundle Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "bundle_id", "created_at", "claim_scope", "files", "method", "redaction", "origin_home"],
+  "properties": {
+    "schema": { "const": "aafp.commons/evidence-bundle@1" },
+    "bundle_id": { "type": "string" },
+    "created_at": { "type": "string" },
+    "claim_scope": { "type": "string" },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "media_type", "bytes", "sha256", "role", "disclosure"],
+        "properties": {
+          "name": { "type": "string" },
+          "media_type": { "type": "string" },
+          "bytes": { "type": "integer", "minimum": 0 },
+          "sha256": { "type": "string" },
+          "role": { "enum": ["input", "environment", "output", "method", "note"] },
+          "disclosure": { "enum": ["public", "organization", "private"] }
+        }
+      }
+    },
+    "method": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "command": { "type": "string" },
+        "expected": { "type": "string" }
+      }
+    },
+    "redaction": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "from_digest": { "type": "string" },
+        "to_digest": { "type": "string" },
+        "rule": { "type": "string" }
+      }
+    },
+    "origin_home": { "type": "string" }
+  }
+}

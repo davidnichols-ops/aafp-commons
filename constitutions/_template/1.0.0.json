@@ -1,0 +1,32 @@
+{
+  "allowed_kinds": ["observation", "hypothesis", "finding", "workflow", "benchmark"],
+  "allowed_licenses": ["commons-v1"],
+  "allowed_visibilities": ["public", "organization"],
+  "constitution_id": "your-id",
+  "description": "One-line description of the admission policy and intended guidance.",
+  "guidance": {
+    "principles": ["State the first operating rule", "State the second operating rule"],
+    "summary": "Short advisory summary shown after adoption.",
+    "text": "Long-form advisory guidance. This text does not participate in admission.\nIt is working context only after the runtime accepts an adoption request.\n"
+  },
+  "minimum_evidence": 1,
+  "namespace_prefixes": ["commons", "org", "agent"],
+  "provider_constraint_policy": "preserve",
+  "provider_constraints": [],
+  "require_evidence_digests": true,
+  "required_evidence_kinds": [],
+  "runtime_compatibility": {
+    "compatible": ["grok", "claude", "codex", "cursor", "custom"],
+    "incompatible": [],
+    "notes": "Advisory runtime hints only."
+  },
+  "schema": "aafp.commons/constitution-manifest@1",
+  "source": {
+    "attribution": "Author or organization",
+    "license": "LicenseRef-User-Provided",
+    "title": "Your Constitution Title",
+    "url": ""
+  },
+  "supersedes": null,
+  "version": "1.0.0"
+}
