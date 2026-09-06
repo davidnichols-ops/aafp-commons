@@ -38,3 +38,4 @@ Each gate must preserve the north-star invariants: local ledgers remain private
 by default, only explicitly public packets leave a client, content addresses
 remain stable, optional constitutions never override provider or system
 constraints, reads never fetch evidence, and import is not trust.
+Now: explicit local resolution policy can permit reliance without changing support.

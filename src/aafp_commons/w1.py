@@ -418,6 +418,12 @@ def build_parser() -> argparse.ArgumentParser:
     resolve_cmd.add_argument("claim_id")
     resolve_cmd.add_argument("--prefer", required=True)
     resolve_cmd.add_argument("--rationale", required=True)
+    policy = commands.add_parser("policy", help="show or update local rely policy")
+    policy_commands = policy.add_subparsers(dest="policy_command", required=True)
+    policy_commands.add_parser("show")
+    policy_set = policy_commands.add_parser("set")
+    policy_set.add_argument("--accept-resolution", action="store_true")
+    policy_set.add_argument("--mode", choices=("display", "consequential"), default="display")
     return parser
 
 
@@ -511,6 +517,18 @@ def main(argv: list[str] | None = None) -> int:
             constitution = repository.constitutions.resolve(reference)
             print(json.dumps(resolve(repository, args.claim_id, identity, constitution,
                                       args.prefer, args.rationale), indent=2))
+            return 0
+        if args.command == "policy":
+            from aafp_commons.verification import DEFAULT_RELY_POLICY, load_rely_policy
+            path = home / "policy.rely.json"
+            if args.policy_command == "show":
+                print(json.dumps(load_rely_policy(home), indent=2, sort_keys=True))
+                return 0
+            value = load_rely_policy(home) if path.exists() else dict(DEFAULT_RELY_POLICY)
+            value["accept_resolution"] = args.accept_resolution
+            value["mode"] = args.mode
+            path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print(json.dumps(value, indent=2, sort_keys=True))
             return 0
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         print(json.dumps({"error": str(error)}))
