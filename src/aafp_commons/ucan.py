@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -28,6 +29,7 @@ UCAN_NAMESPACE_PREFIX = "commons://namespace/"
 
 _BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 _ED25519_MULTICODEC = b"\xed\x01"
+_MAX_TOKEN_LENGTH = 16_384
 
 
 class UcanError(ValueError):
@@ -69,12 +71,32 @@ def verify_ucan(
     *,
     now: int | None = None,
     expected_audience: str | None = None,
+    trusted_issuers: dict[str, list[str]] | None = None,
+    signer_key_id: str | None = None,
 ) -> UcanClaims:
-    """Verify one bounded UCAN and its submit capability for *packet*."""
+    """Verify a grant against operator trust and the verified packet signer.
+
+    Callers must verify the packet signature before trusting ``signer_key_id``.
+    Explicit trust/audience arguments override environment configuration;
+    missing or empty configuration never authorizes a supplied token.
+    """
     try:
         header, payload, signature, signing_input = _decode(token)
         if header != {"alg": UCAN_ALGORITHM, "typ": UCAN_TYPE}:
             raise UcanError("UCAN_INVALID: unsupported header")
+        if payload.keys() - {
+            "iss",
+            "aud",
+            "sub",
+            "cmd",
+            "args",
+            "nonce",
+            "exp",
+            "nbf",
+            "att",
+            "prf",
+        }:
+            raise UcanError("UCAN_INVALID: unsupported token fields")
         issuer = payload.get("iss")
         audience = payload.get("aud")
         subject = payload.get("sub")
@@ -85,14 +107,32 @@ def verify_ucan(
         _public_key_from_did(audience)
         if subject != packet.author_agent_id:
             raise UcanError("UCAN_INVALID: subject does not match packet author")
-        configured_audience = expected_audience or os.environ.get("COMMONS_UCAN_AUDIENCE")
-        if configured_audience is not None and audience != configured_audience:
+        configured_audience = (
+            os.environ.get("COMMONS_UCAN_AUDIENCE")
+            if expected_audience is None
+            else expected_audience
+        )
+        if not configured_audience:
+            raise UcanError("UCAN_INVALID: operator audience is not configured")
+        _public_key_from_did(configured_audience)
+        if audience != configured_audience:
             raise UcanError("UCAN_INVALID: audience does not match this Commons node")
+        grants = _issuer_grants(trusted_issuers)
+        if issuer not in grants:
+            raise UcanError("UCAN_INVALID: issuer is not trusted by this Commons node")
         if payload.get("cmd") != UCAN_COMMAND:
             raise UcanError("UCAN_INVALID: command is not commons/submit")
         args = payload.get("args")
         if not isinstance(args, dict):
             raise UcanError("UCAN_INVALID: args must be an object")
+        if args.keys() - {"namespace", "packet_id", "signer_key_id"}:
+            raise UcanError("UCAN_INVALID: unsupported argument constraints")
+        if (
+            not isinstance(signer_key_id, str)
+            or not signer_key_id
+            or args.get("signer_key_id") != signer_key_id
+        ):
+            raise UcanError("UCAN_INVALID: signer_key_id does not match packet signer")
         if "namespace" in args and args["namespace"] != packet.namespace:
             raise UcanError("UCAN_INVALID: namespace does not match packet")
         if "packet_id" in args and args["packet_id"] != packet.packet_id:
@@ -104,26 +144,31 @@ def verify_ucan(
         proofs = payload.get("prf", [])
         if not isinstance(proofs, list) or proofs:
             raise UcanError("UCAN_INVALID: proof chains are not supported")
-        if not _has_submit_capability(payload.get("att"), packet.namespace):
-            raise UcanError("UCAN_INVALID: submit capability is missing")
+        _verify_capabilities(payload.get("att"), packet.namespace, grants[issuer])
         return UcanClaims(issuer=issuer, audience=audience, subject=subject, payload=payload)
     except UcanError:
         raise
-    except (InvalidSignature, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+    except (InvalidSignature, KeyError, TypeError, ValueError, RecursionError) as error:
         raise UcanError(f"UCAN_INVALID: {error}") from error
 
 
 def _decode(token: str) -> tuple[dict[str, Any], dict[str, Any], bytes, bytes]:
-    if not isinstance(token, str):
-        raise UcanError("UCAN_INVALID: token must be a string")
+    if not isinstance(token, str) or len(token) > _MAX_TOKEN_LENGTH:
+        raise UcanError("UCAN_INVALID: token must be a string of at most 16384 characters")
     parts = token.split(".")
     if len(parts) != 3 or any(not part for part in parts):
         raise UcanError("UCAN_INVALID: token must have three segments")
-    header_bytes = b64decode(parts[0])
-    payload_bytes = b64decode(parts[1])
-    signature = b64decode(parts[2])
-    header = json.loads(header_bytes.decode("utf-8"))
-    payload = json.loads(payload_bytes.decode("utf-8"))
+    decoded = []
+    for part in parts:
+        if re.fullmatch(r"[A-Za-z0-9_-]+", part) is None:
+            raise UcanError("UCAN_INVALID: malformed base64url segment")
+        value = b64decode(part)
+        if b64encode(value) != part:
+            raise UcanError("UCAN_INVALID: noncanonical base64url segment")
+        decoded.append(value)
+    header_bytes, payload_bytes, signature = decoded
+    header = _load_json(header_bytes.decode("utf-8"))
+    payload = _load_json(payload_bytes.decode("utf-8"))
     if not isinstance(header, dict) or not isinstance(payload, dict):
         raise UcanError("UCAN_INVALID: header and payload must be objects")
     return header, payload, signature, f"{parts[0]}.{parts[1]}".encode("ascii")
@@ -142,23 +187,71 @@ def _verify_time_bounds(payload: dict[str, Any], now: int) -> None:
         raise UcanError("UCAN_INVALID: UCAN is not yet valid")
 
 
-def _has_submit_capability(value: Any, namespace: str) -> bool:
-    if not isinstance(value, list):
-        return False
+def _load_json(value: str) -> Any:
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in result:
+                raise UcanError("UCAN_INVALID: duplicate JSON field")
+            result[key] = item
+        return result
+
+    def reject_constant(value: str) -> None:
+        raise UcanError("UCAN_INVALID: non-finite JSON value")
+
+    return json.loads(value, object_pairs_hook=unique_object, parse_constant=reject_constant)
+
+
+def _valid_resource(value: Any) -> bool:
+    return isinstance(value, str) and (
+        value == UCAN_GLOBAL_RESOURCE
+        or (value.startswith(UCAN_NAMESPACE_PREFIX) and len(value) > len(UCAN_NAMESPACE_PREFIX))
+    )
+
+
+def _issuer_grants(configured: dict[str, list[str]] | None) -> dict[str, list[str]]:
+    if configured is None:
+        raw = os.environ.get("COMMONS_UCAN_TRUSTED_ISSUERS")
+        configured = _load_json(raw) if raw else None
+    if not isinstance(configured, dict) or not configured:
+        raise UcanError("UCAN_INVALID: operator trusted issuers are not configured")
+    for issuer, resources in configured.items():
+        _public_key_from_did(issuer)
+        if (
+            not isinstance(resources, list)
+            or not resources
+            or not all(_valid_resource(resource) for resource in resources)
+        ):
+            raise UcanError("UCAN_INVALID: malformed operator issuer grants")
+    return configured
+
+
+def _verify_capabilities(value: Any, namespace: str, grants: list[str]) -> None:
+    if not isinstance(value, list) or not value:
+        raise UcanError("UCAN_INVALID: submit capability is missing")
     allowed_resources = {
         UCAN_GLOBAL_RESOURCE,
         f"{UCAN_NAMESPACE_PREFIX}{namespace}",
     }
-    return any(
-        isinstance(capability, dict)
-        and capability.get("with") in allowed_resources
-        and capability.get("can") == UCAN_COMMAND
-        for capability in value
-    )
+    covers_packet = False
+    for capability in value:
+        if (
+            not isinstance(capability, dict)
+            or capability.keys() != {"with", "can"}
+            or capability["can"] != UCAN_COMMAND
+            or not _valid_resource(capability["with"])
+        ):
+            raise UcanError("UCAN_INVALID: unsupported submit capability or constraints")
+        resource = capability["with"]
+        if UCAN_GLOBAL_RESOURCE not in grants and resource not in grants:
+            raise UcanError("UCAN_INVALID: capability exceeds issuer authority")
+        covers_packet |= resource in allowed_resources
+    if not covers_packet:
+        raise UcanError("UCAN_INVALID: submit capability does not cover packet namespace")
 
 
 def _public_key_from_did(value: str) -> Ed25519PublicKey:
-    if not value.startswith("did:key:z"):
+    if not isinstance(value, str) or not value.startswith("did:key:z") or len(value) > 64:
         raise UcanError("UCAN_INVALID: issuer must be an Ed25519 did:key")
     decoded = _base58_decode(value.removeprefix("did:key:z"))
     if not decoded.startswith(_ED25519_MULTICODEC) or len(decoded) != 34:

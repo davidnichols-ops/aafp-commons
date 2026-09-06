@@ -77,7 +77,7 @@ class AdmissionPolicy:
             reasons.append("UCAN_REQUIRED")
         elif ucan is not None:
             try:
-                verify_ucan(ucan, packet, now=current)
+                verify_ucan(ucan, packet, now=current, signer_key_id=signed.signer_key_id)
             except UcanError as error:
                 reasons.append(str(error))
         return PolicyDecision(
