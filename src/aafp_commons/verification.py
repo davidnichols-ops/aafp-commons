@@ -302,7 +302,11 @@ def status(
     if policy is None:
         policy = load_rely_policy(repository.root)
     rely_ok = _consequential_ok(results, signer_agent_id, policy)
+    from aafp_commons.conflicts import projection
+
+    conflict = projection(repository, claim_id, policy)
     return {
+        **conflict,
         "claim_id": claim_id,
         "evidence_supplied": supplied,
         "digest_checked": checked,
@@ -310,7 +314,7 @@ def status(
         "supported": supported,
         "verifier_signed": verifier_signed,
         "independent_corroboration": independent,
-        "rely_ok": rely_ok,
+        "rely_ok": rely_ok if not conflict["conflict"] else False,
     }
 
 

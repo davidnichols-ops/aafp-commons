@@ -414,6 +414,10 @@ def build_parser() -> argparse.ArgumentParser:
     decide.add_argument("claim_id")
     decide.add_argument("--decision", required=True)
     decide.add_argument("--bundle-id")
+    resolve_cmd = commands.add_parser("resolve", help="write an explicit local conflict resolution")
+    resolve_cmd.add_argument("claim_id")
+    resolve_cmd.add_argument("--prefer", required=True)
+    resolve_cmd.add_argument("--rationale", required=True)
     return parser
 
 
@@ -496,6 +500,17 @@ def main(argv: list[str] | None = None) -> int:
                 repository, args.claim_id, identity, constitution,
                 args.decision, args.bundle_id,
             ), indent=2))
+            return 0
+        if args.command == "resolve":
+            from aafp_commons.conflicts import resolve
+            identity = _load_identity(home)
+            reference = _load_constitution(home)
+            if identity is None or reference is None:
+                raise ValueError("INIT_REQUIRED: resolutions require an initialized home")
+            repository = CommonsRepository(home)
+            constitution = repository.constitutions.resolve(reference)
+            print(json.dumps(resolve(repository, args.claim_id, identity, constitution,
+                                      args.prefer, args.rationale), indent=2))
             return 0
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         print(json.dumps({"error": str(error)}))

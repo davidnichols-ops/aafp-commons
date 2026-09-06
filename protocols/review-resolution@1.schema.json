@@ -1,0 +1,16 @@
+{
+  "$id": "https://aafp-commons.org/schema/review-resolution@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "claim_id", "conflict_digests", "decision", "rationale", "resolver_subject", "method", "resolved_at"],
+  "properties": {
+    "schema": {"const": "aafp.commons/review-resolution@1"},
+    "claim_id": {"type": "string"},
+    "conflict_digests": {"type": "array", "items": {"type": "string"}, "minItems": 2},
+    "decision": {"enum": ["prefer-a", "prefer-b", "neither", "escalate"]},
+    "rationale": {"type": "string", "minLength": 1},
+    "resolver_subject": {"type": "string"},
+    "method": {"type": "string"},
+    "resolved_at": {"type": "string"}
+  }
+}
