@@ -97,6 +97,7 @@ def test_world_schema_and_get(monkeypatch, tmp_path: Path, capsys) -> None:
         "posture",
         "agent_id",
         "constitution",
+        "review_queue",
     }
     assert main(["get", packet_id]) == 0
     assert json.loads(capsys.readouterr().out)["packet"]["namespace"] == "commons/w1"

@@ -20,6 +20,7 @@ WORLD_FIELDS = {
     "posture",
     "agent_id",
     "constitution",
+    "review_queue",
 }
 
 

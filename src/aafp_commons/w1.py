@@ -7,6 +7,7 @@ import json
 import os
 import signal
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -182,6 +183,38 @@ def _project_conflict_resolution_ids(root: Path) -> tuple[list[str], list[str]]:
     return sorted(conflict_ids), sorted(resolution_ids)
 
 
+def _project_review_queue(root: Path) -> list[dict[str, Any]]:
+    repository = CommonsRepository(root)
+    if not repository.objects_dir.exists():
+        return []
+    reviewed: set[str] = set()
+    claims: list[dict[str, Any]] = []
+    for signed in repository.query(""):
+        if signed.packet.namespace == "commons/review/result":
+            claim_id = signed.packet.scope.get("claim_id")
+            if (
+                signed.packet.scope.get("decision") in {
+                "accept-display", "need-evidence", "reject-spam", "reject-scope",
+                "reject-constitution", "conflict", "escalate",
+                }
+                and isinstance(claim_id, str)
+            ):
+                reviewed.add(claim_id)
+        elif signed.packet.namespace != "commons/review/result":
+            claims.append({"claim_id": signed.packet_id, "enqueued_at": signed.packet.created_at})
+    now = int(time.time())
+    return [
+        {
+            **claim,
+            "state": "in-review",
+            "reviewer_subject": None,
+            "last_transition_at": now,
+        }
+        for claim in claims
+        if claim["claim_id"] not in reviewed
+    ]
+
+
 def world(home: Path | None = None) -> dict[str, Any]:
     root = home or home_path()
     identity = _load_identity(root)
@@ -208,6 +241,7 @@ def world(home: Path | None = None) -> dict[str, Any]:
         "posture": "subject" if identity is not None else "source",
         "agent_id": derive_agent_id(identity.public_bytes()) if identity else None,
         "constitution": constitution,
+        "review_queue": _project_review_queue(root),
     }
 
 
@@ -371,6 +405,15 @@ def build_parser() -> argparse.ArgumentParser:
     status.add_argument("claim_id")
     rely_cmd = commands.add_parser("rely", help="evaluate rely decision for a claim")
     rely_cmd.add_argument("claim_id")
+    review = commands.add_parser("review", help="local signed claim review")
+    review_commands = review.add_subparsers(dest="review_command", required=True)
+    enqueue = review_commands.add_parser("enqueue", help="enqueue a claim for review")
+    enqueue.add_argument("claim_id")
+    enqueue.add_argument("--reviewer-subject")
+    decide = review_commands.add_parser("decide", help="record a signed review result")
+    decide.add_argument("claim_id")
+    decide.add_argument("--decision", required=True)
+    decide.add_argument("--bundle-id")
     return parser
 
 
@@ -435,6 +478,24 @@ def main(argv: list[str] | None = None) -> int:
             from aafp_commons.verification import rely
 
             print(json.dumps(rely(CommonsRepository(home), args.claim_id), indent=2))
+            return 0
+        if args.command == "review":
+            from aafp_commons.review import decide as decide_review
+            from aafp_commons.review import queue
+
+            repository = CommonsRepository(home)
+            if args.review_command == "enqueue":
+                print(json.dumps(queue(repository, args.claim_id, args.reviewer_subject), indent=2))
+                return 0
+            identity = _load_identity(home)
+            reference = _load_constitution(home)
+            if identity is None or reference is None:
+                raise ValueError("INIT_REQUIRED: review decisions require an initialized home")
+            constitution = repository.constitutions.resolve(reference)
+            print(json.dumps(decide_review(
+                repository, args.claim_id, identity, constitution,
+                args.decision, args.bundle_id,
+            ), indent=2))
             return 0
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         print(json.dumps({"error": str(error)}))
