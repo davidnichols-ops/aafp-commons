@@ -14,6 +14,7 @@ not a shared mutable database or a replacement for AAFP transport.
 export COMMONS_HOME=/tmp/commons-demo
 commons init
 commons world
+commons import published/maos-lessons-public-2026-09-05.json
 commons mcp
 ```
 
