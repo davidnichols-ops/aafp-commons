@@ -357,6 +357,20 @@ def build_parser() -> argparse.ArgumentParser:
     get = commands.add_parser("get", help="read one packet by content address")
     get.add_argument("packet_id")
     commands.add_parser("mcp", help="run the zero-config stdio MCP server")
+    evidence = commands.add_parser("evidence", help="local evidence bundles")
+    evidence_commands = evidence.add_subparsers(dest="evidence_command", required=True)
+    evidence_pack = evidence_commands.add_parser("pack", help="pack claim evidence")
+    evidence_pack.add_argument("claim_id")
+    evidence_pack.add_argument("--out", type=Path, required=True)
+    evidence_check = evidence_commands.add_parser("check", help="check bundle digests")
+    evidence_check.add_argument("bundle", type=Path)
+    verify = commands.add_parser("verify", help="record a local verification result")
+    verify.add_argument("claim_id")
+    verify.add_argument("--method", required=True)
+    status = commands.add_parser("status", help="show local claim verification status")
+    status.add_argument("claim_id")
+    rely_cmd = commands.add_parser("rely", help="evaluate rely decision for a claim")
+    rely_cmd.add_argument("claim_id")
     return parser
 
 
@@ -387,6 +401,41 @@ def main(argv: list[str] | None = None) -> int:
             from aafp_commons.mcp_stdio import serve_stdio
 
             return serve_stdio(home=home)
+        if args.command == "evidence":
+            from aafp_commons.verification import check_bundle, pack_evidence
+
+            if args.evidence_command == "pack":
+                identity = _load_identity(home)
+                value = pack_evidence(CommonsRepository(home), args.claim_id, args.out, identity)
+                print(json.dumps({"evidence_id": value["evidence_id"], "output": str(args.out),
+                                  "missing": value["missing"]}, indent=2))
+                return 0
+            value = check_bundle(args.bundle)
+            print(json.dumps({"evidence_id": value.get("evidence_id"),
+                              "digest_checked": value["digest_checked"],
+                              "checks": value["checks"]}, indent=2))
+            return 0 if value["digest_checked"] else 1
+        if args.command == "verify":
+            from aafp_commons.verification import record_verification
+
+            identity = _load_identity(home)
+            verifier_agent_id = (
+                derive_agent_id(identity.public_bytes()) if identity else "local-verifier"
+            )
+            print(json.dumps(record_verification(home, args.claim_id, args.method,
+                                                 verifier_agent_id, "unavailable", identity),
+                             indent=2))
+            return 0
+        if args.command == "status":
+            from aafp_commons.verification import status
+
+            print(json.dumps(status(CommonsRepository(home), args.claim_id), indent=2))
+            return 0
+        if args.command == "rely":
+            from aafp_commons.verification import rely
+
+            print(json.dumps(rely(CommonsRepository(home), args.claim_id), indent=2))
+            return 0
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         print(json.dumps({"error": str(error)}))
         return 1
