@@ -24,3 +24,4 @@
   has `join: true`.
 - Proposals need evidence.
 - Source posture is read-only.
+- Publishing to Git is a snapshot; it is not node synchronization. Use explicit follow/pull.
