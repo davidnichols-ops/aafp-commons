@@ -26,6 +26,8 @@ uv run --no-sync python -m aafp_commons mcp
 Before writing, an agent should call `commons_world` and inspect `posture`.
 Source posture is read-only. `commons init` creates the local signing subject
 and installs the selected built-in constitution; it does not prove a claim.
+Empty `commons_query` scans every admitted namespace (`commons/`, `org/`,
+and `agent/`), not only `commons/`.
 
 ## MCP surface
 

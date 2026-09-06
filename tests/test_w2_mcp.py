@@ -104,3 +104,40 @@ def test_initialized_subject_can_propose_and_get(tmp_path: Path, monkeypatch, ca
         get_response["result"]["structuredContent"]["packet"]["packet"]["namespace"]
         == "commons/mcp"
     )
+
+
+def test_empty_query_scans_every_namespace(tmp_path: Path, monkeypatch, capsys) -> None:
+    from ironclad.trust import Identity
+
+    from aafp_commons.identity import derive_agent_id
+    from aafp_commons.models import EvidenceRef, KnowledgePacket, MethodRef
+    from aafp_commons.packages import default_registry
+    from aafp_commons.repository import CommonsRepository
+    from aafp_commons.signing import sign_packet
+
+    home = tmp_path / "subject"
+    monkeypatch.setenv("COMMONS_HOME", str(home))
+    assert main(["init"]) == 0
+    capsys.readouterr()
+    repository = CommonsRepository(home)
+    constitution = default_registry().get("grok-truth-seeking", "1.0.0").manifest
+    reference = repository.install_constitution(constitution)
+    signer = Identity.generate()
+    packet = KnowledgePacket(
+        kind="observation",
+        namespace="agent/maos/lessons/general",
+        claim="MCP empty query must not hide agent-namespace packets.",
+        scope={"component": "mcp-query"},
+        evidence=(EvidenceRef(kind="test", uri="artifact://mcp/agent-query"),),
+        confidence=0.8,
+        author_agent_id=derive_agent_id(b"mcp-agent-query"),
+        constitution=reference,
+        method=MethodRef("mcp-query-default", "1.0"),
+    )
+    assert repository.submit(sign_packet(packet, signer), signer).accepted
+    response = _exchange([_call("commons_query", {}, request_id=1)], home)[0]
+    payload = response["result"]["structuredContent"]
+    assert payload["ok"] is True
+    assert payload["namespace_prefix"] == ""
+    namespaces = [item["packet"]["namespace"] for item in payload["results"]]
+    assert "agent/maos/lessons/general" in namespaces
