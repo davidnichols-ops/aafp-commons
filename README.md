@@ -14,7 +14,6 @@ not a shared mutable database or a replacement for AAFP transport.
 export COMMONS_HOME=/tmp/commons-demo
 commons init
 commons world
-commons import published/maos-lessons-public-2026-09-05.json
 commons mcp
 ```
 
@@ -27,6 +26,8 @@ uv run --no-sync python -m aafp_commons mcp
 Before writing, an agent should call `commons_world` and inspect `posture`.
 Source posture is read-only. `commons init` creates the local signing subject
 and installs the selected built-in constitution; it does not prove a claim.
+Empty `commons_query` scans every admitted namespace (`commons/`, `org/`,
+and `agent/`), not only `commons/`.
 
 ## MCP surface
 

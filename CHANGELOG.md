@@ -4,11 +4,7 @@
 
 - `commons_query` and `CommonsRepository.query` scan every admitted
   namespace by default instead of only `commons/`, so `agent/` and `org/`
-  packets from public snapshots are visible after import.
-- Added `commons import` on the W1 home CLI to admit a verified public
-  snapshot through existing policy gates.
-- Pointed the W1 `--help` banner at `python -m aafp_commons.cli` for
-  operator catalog and sharing commands.
+  packets from public snapshots are visible to an empty query.
 - Added an authenticated publication service with separate publisher
   attribution, authorization and privacy hooks, revocation, and per-publisher
   limits.
