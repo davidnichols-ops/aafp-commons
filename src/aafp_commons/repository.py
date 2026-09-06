@@ -161,7 +161,7 @@ class CommonsRepository:
             json.loads(self.object_path(packet_id).read_text(encoding="utf-8"))
         )
 
-    def query(self, namespace_prefix: str = "commons/") -> list[SignedPacket]:
+    def query(self, namespace_prefix: str = "") -> list[SignedPacket]:
         if not self.objects_dir.exists():
             return []
         packets = []
