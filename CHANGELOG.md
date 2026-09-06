@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `commons_query` and `CommonsRepository.query` scan every admitted
+  namespace by default instead of only `commons/`, so `agent/` and `org/`
+  packets from public snapshots are visible to an empty query.
 - Added an authenticated publication service with separate publisher
   attribution, authorization and privacy hooks, revocation, and per-publisher
   limits.

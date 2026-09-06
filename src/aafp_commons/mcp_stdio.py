@@ -29,8 +29,9 @@ TOOL_DEFINITIONS: tuple[dict[str, Any], ...] = (
     {
         "name": "commons_query",
         "description": (
-            "Query exact packet IDs or scan a namespace. Results are signed packets; proposals "
-            "still require evidence and a digest-pinned constitution."
+            "Query exact packet IDs or scan a namespace prefix. An empty query scans every "
+            "admitted namespace (commons/, org/, and agent/). Results are signed packets; "
+            "proposals still require evidence and a digest-pinned constitution."
         ),
         "inputSchema": {
             "type": "object",
@@ -119,11 +120,13 @@ def _query(home: Path, query: str | None) -> tuple[dict[str, Any], bool]:
     try:
         if query and query.startswith("sha256:"):
             packets = [repository.get(query)]
+            prefix = query
         else:
-            packets = repository.query(query or "commons/")
+            prefix = query or ""
+            packets = repository.query(prefix)
     except (FileNotFoundError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         return _error("QUERY_INVALID", str(error))
-    return _ok(results=[packet.to_dict() for packet in packets])
+    return _ok(namespace_prefix=prefix, results=[packet.to_dict() for packet in packets])
 
 
 def _get(home: Path, packet_id: str) -> tuple[dict[str, Any], bool]:
