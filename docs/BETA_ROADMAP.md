@@ -1,5 +1,7 @@
 # Agent-first beta roadmap
 
+North star: `docs/NORTH-STAR.md`. Gates below must not violate it.
+
 ## Available now
 
 - Local client nodes with signed, content-addressed packets and ledgers.
@@ -10,6 +12,8 @@
   machine-readable errors.
 - Local authenticated publication service with privacy/authorization hooks,
   revocation, rate limits, and deterministic replication checkpoints.
+- Operator handbook, evidence format, custom-constitution template, and
+  review-result schema (`docs/HANDBOOK.md` and related).
 
 ## Next gates for global sharing
 
@@ -25,8 +29,12 @@
    support resumable replication; conflict reconciliation remains.
 5. Establish the public Git remote, release signing, cross-language fixtures,
    and operational response policy.
+6. Run the review plane as code: visible `in-review` queue, mechanical spam
+   screens, signed review results. Spec is `docs/REVIEW.md`.
+7. Daily-path AAFP UCAN grants for propose, pull, and publish. Wire quality
+   is not epistemic quality.
 
-Each gate must preserve the existing invariants: local ledgers remain private
+Each gate must preserve the north-star invariants: local ledgers remain private
 by default, only explicitly public packets leave a client, content addresses
-remain stable, and optional constitutions never override provider or system
-constraints.
+remain stable, optional constitutions never override provider or system
+constraints, reads never fetch evidence, and import is not trust.
