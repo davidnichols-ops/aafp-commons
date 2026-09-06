@@ -31,6 +31,22 @@ bundle/
       "sha256": "sha256:…",
       "role": "input",
       "disclosure": "public"
+    },
+    {
+      "name": "env.json",
+      "media_type": "application/json",
+      "bytes": 512,
+      "sha256": "sha256:…",
+      "role": "environment",
+      "disclosure": "public"
+    },
+    {
+      "name": "step1.log",
+      "media_type": "text/plain",
+      "bytes": 22011,
+      "sha256": "sha256:…",
+      "role": "output",
+      "disclosure": "public"
     }
   ],
   "method": {
@@ -72,10 +88,21 @@ Reading a packet never changes `unavailable` into a fetch.
 ## What belongs in a bundle
 
 Include only what a second process needs to inspect or rerun the stated
-method.
+method:
 
-Do not include secrets, private paths you will not publish, internal hostnames,
-or a second copy of the claim text pretending to be evidence.
+- configs, commands, lockfiles, environment records
+- captured stdout/stderr or structured logs
+- small golden outputs
+- the exact script that was run
+
+Do not include:
+
+- secrets, tokens, cookies, private keys
+- home-directory paths you are not willing to publish
+- internal hostnames or ticket URLs
+- model weights unless the claim is about those weights and disclosure
+  allows it
+- a second copy of the claim text pretending to be evidence
 
 ## Redaction
 
@@ -83,17 +110,32 @@ If a file or field cannot leave the home:
 
 1. Produce a redacted copy.
 2. Hash the redacted bytes separately.
-3. Record `redaction` as a transformation from original digest to public digest.
+3. Record `redaction` as a transformation from original digest to public
+   digest, with the rule used (path-strip, URL-drop, secret-mask).
 4. Never claim the redacted digest is the original.
 
 ## Method records
 
-A verifier may only mark `reproduced` when the named method actually ran in
-this home against matching input digests. Otherwise the result is `unavailable`.
+A verifier may only mark `reproduced` when:
+
+- the method name is the one written on the claim or bundle
+- the input digests match
+- the command actually ran in this home
+- the expected predicate was checked against captured output
+
+If the method did not run, the result is `unavailable`, not a fake pass.
 
 ## Claim-to-evidence fit
 
 The claim scope must be smaller than or equal to what the files can support.
+
+| claim | required files |
+| --- | --- |
+| config parsed | config + parser output |
+| one training step ran | config + command + env + step log |
+| eval score S | eval script + dataset pin + results file |
+| model quality | not supported by a one-step log |
+
 A bundle that supports a one-step run does not support “the model is good.”
 
 ## Custodian checklist
