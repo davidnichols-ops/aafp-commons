@@ -41,3 +41,14 @@ When you encounter a claim about X, check Commons before relying on it. X means
 training configs, pytest/CI green claims, lesson snapshots, dependency pins,
 and "this method was reproduced." The executable form is `commons status CLAIM_ID`.
 Record the result before relying on the claim; admission alone is insufficient.
+
+## Trust boundary
+
+- Two trust systems sit on the MCP path: Trustcard (wire/call gate) and
+  Commons (claim/ledger gate). They answer different questions; do not merge.
+- Local stdio MCP between a trusted agent and `commons mcp` does not require
+  the Trustcard proxy. See `docs/TRUST-BOUNDARY.md` for the full boundary.
+- Exposing Commons MCP off-box: pin a Trustcard manifest, then front the
+  endpoint with the Trustcard proxy. The ledger stays private by default.
+- Trustcard never signs packets or changes admission; Commons never inspects
+  the MCP transport. Truth is a verify result plus rely policy, in the ledger.
