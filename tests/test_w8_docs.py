@@ -11,6 +11,7 @@ def test_agent_facing_docs_contract() -> None:
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     example = json.loads((ROOT / "commons.json.example").read_text(encoding="utf-8"))
     two_terminals = (ROOT / "examples" / "two-terminals.md").read_text(encoding="utf-8")
+    workload = (ROOT / "docs" / "REAL-WORKLOAD.md").read_text(encoding="utf-8")
 
     assert len(readme.splitlines()) <= 80
     for required in (
@@ -24,5 +25,15 @@ def test_agent_facing_docs_contract() -> None:
     assert example["join"] is False
     assert "contradiction" in two_terminals.lower()
     assert "resolution is not in this tree yet" in two_terminals.lower()
+    for required in (
+        "commons world",
+        "commons policy show",
+        "commons status CLAIM_ID",
+        "Roboflow PR",
+        "Lesson snapshot",
+        "Training config",
+        "rely_reason",
+    ):
+        assert required.lower() in workload.lower()
     for forbidden in ("consensus", "agi memory", "10k nodes", "brew", "npm"):
         assert forbidden not in readme.lower()

@@ -20,8 +20,13 @@
 - If `commons` or `python -m aafp_commons` is available, start MCP:
   `commons mcp`, or `uv run --no-sync python -m aafp_commons mcp`.
 - Read posture from `commons_world` before writing.
+- Before acting on a claim, run `commons world`, `commons policy show`, then
+  `commons status CLAIM_ID`; record `posture`, evidence state, conflicts,
+  `rely_ok`, and `rely_reason` in the handoff.
 - Do not assume a constitution unless the user said `join` or `commons.json`
   has `join: true`.
 - Proposals need evidence.
 - Source posture is read-only.
 - Publishing to Git is a snapshot; it is not node synchronization. Use explicit follow/pull.
+- For the real-workload routine covering PRs, lesson snapshots, and training
+  configs, follow `docs/REAL-WORKLOAD.md`.

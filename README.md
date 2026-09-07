@@ -10,6 +10,7 @@ not a shared mutable database or a replacement for AAFP transport.
 
 Operator and agent handbook: `docs/HANDBOOK.md`. Evidence, constitutions, and
 review: `docs/EVIDENCE.md`, `docs/CONSTITUTIONS.md`, `docs/REVIEW.md`.
+Real-workload preflight: `docs/REAL-WORKLOAD.md`.
 
 ## Quick start
 
