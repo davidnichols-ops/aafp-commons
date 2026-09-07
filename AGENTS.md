@@ -30,3 +30,14 @@
 - Publishing to Git is a snapshot; it is not node synchronization. Use explicit follow/pull.
 - For the real-workload routine covering PRs, lesson snapshots, and training
   configs, follow `docs/REAL-WORKLOAD.md`.
+
+## Commons-enabled repo check
+
+After identity / before acting on third-party claims:
+Run commons status or check for .commons/ in the repo root.
+If present, this is a Commons-enabled repo.
+
+When you encounter a claim about X, check Commons before relying on it. X means
+training configs, pytest/CI green claims, lesson snapshots, dependency pins,
+and "this method was reproduced." The executable form is `commons status CLAIM_ID`.
+Record the result before relying on the claim; admission alone is insufficient.

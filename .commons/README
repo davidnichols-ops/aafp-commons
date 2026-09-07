@@ -1,0 +1,7 @@
+This is a Commons-enabled repo.
+
+Before acting on a claim, check Commons:
+  commons status CLAIM_ID
+
+See docs/REAL-WORKLOAD.md for the full operating loop and a runnable
+offline worked example using published/maos-lessons-public-2026-09-05.json.
