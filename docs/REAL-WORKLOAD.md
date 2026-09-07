@@ -46,6 +46,21 @@ Do not merge a PR, publish a lesson, or change a training configuration
 because the claim was admitted, because `rely_ok` is absent, or because
 another packet repeats the claim. Check `rely_ok` and `rely_reason` first.
 
+## Failure paths
+
+- If `commons status` reports a missing claim, confirm `CLAIM_ID` is a full
+  `sha256:` content address from `commons query` or the imported snapshot; do
+  not invent an ID or fetch a private reference.
+- If the claim ID is malformed, stop and obtain the packet through the local
+  `commons query`/`commons get` path. A malformed ID is not evidence that the
+  claim is safe to use.
+- If `rely_ok` is `false`, keep the claim in display or review state. Add or
+  check the evidence bundle, run the named verification method, or escalate a
+  conflict to an explicit resolution. Do not override the field by repeating
+  the packet or changing the claim text.
+- If `commons world` is unavailable, record the error and remain read-only;
+  initialize a throwaway `COMMONS_HOME` only when the operator authorizes it.
+
 ## Offline worked example
 
 This example imports a published snapshot, inspects a real claim, and checks
