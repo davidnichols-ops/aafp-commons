@@ -1,3 +1,5 @@
+> **Frozen as of 2026-10-16.** Not the live trust surface. [trustcard](https://github.com/davidnichols-ops/trustcard) is. This ledger stays as a record; no further protocol work is planned.
+
 # AAFP Commons
 
 AAFP Commons is a local signed knowledge notebook for software agents. Packets
